@@ -1,6 +1,6 @@
 from flask import Flask, request, send_file, jsonify
-import os
 import tempfile
+import os
 
 app = Flask(__name__)
 
@@ -9,28 +9,14 @@ def home():
     return "ESP32 Translator Server Running"
 
 @app.route("/translate", methods=["POST"])
-def translate_audio():
-    if "audio" not in request.files:
-        return jsonify({"error": "No audio uploaded"}), 400
+def translate():
+    direction = request.headers.get("X-Direction", "hi-en")
+    raw_audio = request.data
 
-    audio = request.files["audio"]
-    direction = request.form.get("direction", "hi-en")
+    if not raw_audio:
+        return jsonify({"error": "No audio data"}), 400
 
-    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    audio.save(temp_in.name)
+    with open("last_audio.raw", "wb") as f:
+        f.write(raw_audio)
 
-    # TODO:
-    # 1. Speech-to-Text
-    # 2. Translate based on direction
-    # 3. Text-to-Speech generate output.wav/mp3
-
-    # Demo placeholder response:
-    demo_path = "demo_response.mp3"
-
-    if not os.path.exists(demo_path):
-        return jsonify({"error": "No demo_response.mp3 found"}), 500
-
-    return send_file(demo_path, mimetype="audio/mpeg")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    return send_file("demo_response.mp3", mimetype="audio/mpeg")
