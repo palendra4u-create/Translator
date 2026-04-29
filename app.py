@@ -1,5 +1,4 @@
-from flask import Flask, Response, request
-import math
+from flask import Flask, request, Response
 
 app = Flask(__name__)
 
@@ -9,10 +8,7 @@ def home():
 
 @app.route("/translate", methods=["POST"])
 def translate():
-    samples = bytearray()
+    print("=== TRANSLATE HIT ===")
+    print("BYTES RECEIVED:", len(request.data))
 
-    for i in range(8000):
-        val = int((math.sin(i * 0.05) + 1) * 127)
-        samples.append(val)
-
-    return Response(samples, mimetype="application/octet-stream")
+    return Response(bytes([128] * 4000), mimetype="application/octet-stream")
