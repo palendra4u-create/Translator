@@ -1,5 +1,5 @@
-from flask import Flask, request, send_file, jsonify
-import os
+from flask import Flask, Response, request
+import math
 
 app = Flask(__name__)
 
@@ -9,32 +9,10 @@ def home():
 
 @app.route("/translate", methods=["POST"])
 def translate():
-    try:
-        raw_audio = request.data
-        direction = request.headers.get("X-Direction", "hi-en")
+    samples = bytearray()
 
-        print("Direction:", direction)
-        print("Bytes Received:", len(raw_audio))
+    for i in range(8000):
+        val = int((math.sin(i * 0.05) + 1) * 127)
+        samples.append(val)
 
-        if len(raw_audio) == 0:
-            return jsonify({"error": "No audio data"}), 400
-
-        with open("last_audio.raw", "wb") as f:
-            f.write(raw_audio)
-
-        mp3_path = "demo_response.mp3"
-
-        if not os.path.exists(mp3_path):
-            return jsonify({"error": "demo_response.mp3 missing"}), 500
-
-        return send_file(
-            mp3_path,
-            mimetype="audio/mpeg"
-        )
-
-    except Exception as e:
-        print("SERVER ERROR:", str(e))
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    return Response(samples, mimetype="application/octet-stream")
