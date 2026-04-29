@@ -1,5 +1,4 @@
 from flask import Flask, request, send_file, jsonify
-import tempfile
 import os
 
 app = Flask(__name__)
@@ -10,13 +9,13 @@ def home():
 
 @app.route("/translate", methods=["POST"])
 def translate():
-    direction = request.headers.get("X-Direction", "hi-en")
-    raw_audio = request.data
+    print("HEADERS:", dict(request.headers))
+    print("DATA LENGTH:", len(request.data))
 
-    if not raw_audio:
+    if len(request.data) == 0:
         return jsonify({"error": "No audio data"}), 400
 
     with open("last_audio.raw", "wb") as f:
-        f.write(raw_audio)
+        f.write(request.data)
 
     return send_file("demo_response.mp3", mimetype="audio/mpeg")
